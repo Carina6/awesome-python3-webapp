@@ -102,3 +102,10 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Created by .ignore support plugin (hsz.mobi)
+.DS_Store
+.idea/awesome-python3-webapp.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/workspace.xml
