@@ -49,7 +49,7 @@ def execute(sql, args):
     log(sql)
     with (yield from __pool) as conn:
         try:
-            cur =  yield from conn.cursor()
+            cur = yield from conn.cursor()
             yield from cur.execute(sql.replace('?', '%s'), args)
             affected = cur.rowcount
         except BaseException as e:
@@ -88,17 +88,17 @@ class BooleanField(Field):
 
 class IntegerField(Field):
     def __init__(self, name=None, default=False):
-        super(TextField, self).__init__(name, 'bigint', False, default)
+        super().__init__(name, 'bigint', False, default)
 
 
 class FloatField(Field):
     def __init__(self, name=None, default=False):
-        super(TextField, self).__init__(name, 'real', False, default)
+        super().__init__(name, 'real', False, default)
 
 
 class TextField(Field):
     def __init__(self, name=None, default=None):
-        super(TextField, self).__init__(name, 'text', False, default)
+        super().__init__(name, 'text', False, default)
 
 
 class ModelMetaclass(type):
@@ -112,7 +112,7 @@ class ModelMetaclass(type):
         primaryKey = None
         for k, v in attrs.items():
             if isinstance(v, Field):
-                logging.info('found mapping: %s ==> %s') % (k, v)
+                logging.info('found mapping: %s ==> %s' % (k, v))
                 mappings[k] = v
                 if v.primary_key:
                     #找到主键
