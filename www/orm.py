@@ -19,7 +19,7 @@ def create_pool(loop, **kw):
         port=kw.get('port', 3306),
         user=kw['user'],
         password=kw['password'],
-        db=kw['db'],
+        db=kw['database'],
         charset=kw.get('charset', 'utf8'),
         autocommit=kw.get('autocommit', True),
         maxsize=kw.get('maxsize', 10),
@@ -156,12 +156,12 @@ class Model(dict, metaclass=ModelMetaclass):
     def getValueOrDefault(self, key):
         value = getattr(self, key, None)
         if value is None:
-            field=self.__mappings__[key]
+            field = self.__mappings__[key]
             if field.default is not None:
                 value = field.default() if callable(field.default) else field.default
                 logging.debug('using default value for %s: %s' % (key, str(value)))
                 setattr(self, key, value)
-            return value
+        return value
 
     @classmethod
     @asyncio.coroutine
@@ -215,7 +215,7 @@ class Model(dict, metaclass=ModelMetaclass):
 
     @classmethod
     @asyncio.coroutine
-    def save(self):
+    def save(cls, self):
         args = list(map(self.getValueOrDefault, self.__fields__))
         args.append(self.getValueOrDefault(self.__primary_key__))
         rows = yield from execute(self.__insert__, args)
