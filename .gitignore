@@ -110,3 +110,8 @@ venv.bak/
 .idea/modules.xml
 .idea/workspace.xml
 .idea/vcs.xml
+LICENSE/
+backup/
+conf/
+ios/
+www/static/
