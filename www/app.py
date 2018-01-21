@@ -5,10 +5,11 @@
 async web application.
 '''
 
-import logging;
-
-from handlers import COOKIE_NAME, cookie2user
-import asyncio, os, json, time
+import asyncio
+import json
+import logging
+import os
+import time
 from datetime import datetime
 
 from aiohttp import web
@@ -16,6 +17,7 @@ from jinja2 import Environment, FileSystemLoader
 
 import orm
 from coroweb import add_routes, add_static
+from handlers import COOKIE_NAME, cookie2user
 
 logging.basicConfig(level=logging.INFO)
 
