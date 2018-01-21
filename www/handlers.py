@@ -3,17 +3,19 @@
 
 ' url handlers '
 
-import re, time, json, logging, hashlib, base64, asyncio
-
-import markdown2
+import asyncio
+import hashlib
+import json
+import logging
+import re
+import time
 
 from aiohttp import web
 
-from coroweb import get, post
-from apis import APIValueError, APIResourceNotFoundError, APIError
-
-from models import User, Comment, Blog, next_id
+from apis import APIValueError, APIError
 from config import configs
+from coroweb import get, post
+from models import User, Blog, next_id
 
 COOKIE_NAME = 'awesession'
 _COOKIE_KEY = configs.session.secret
@@ -62,9 +64,9 @@ def cookie2user(cookie_str):
 def index(request):
     summary = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
     blogs = [
-        Blog(id='1', name='Test Blog', summary=summary, created_at=time.time()-120),
-        Blog(id='2', name='Something New', summary=summary, created_at=time.time()-3600),
-        Blog(id='3', name='Learn Swift', summary=summary, created_at=time.time()-7200)
+        Blog(id='1', name='Test Blog', summary=summary, created_at=time.time() - 120),
+        Blog(id='2', name='Something New', summary=summary, created_at=time.time() - 3600),
+        Blog(id='3', name='Learn Swift', summary=summary, created_at=time.time() - 7200)
     ]
     return {
         '__template__': 'blogs.html',
@@ -138,7 +140,8 @@ def api_register_user(*, email, name, passwd):
         raise APIError('register:failed', 'email', 'Email is already in use.')
     uid = next_id()
     sha1_passwd = '%s:%s' % (uid, passwd)
-    user = User(id=uid, name=name.strip(), email=email, passwd=hashlib.sha1(sha1_passwd.encode('utf-8')).hexdigest(), image='http://www.gravatar.com/avatar/%s?d=mm&s=120' % hashlib.md5(email.encode('utf-8')).hexdigest())
+    user = User(id=uid, name=name.strip(), email=email, passwd=hashlib.sha1(sha1_passwd.encode('utf-8')).hexdigest(),
+                image='http://www.gravatar.com/avatar/%s?d=mm&s=120' % hashlib.md5(email.encode('utf-8')).hexdigest())
     yield from User.save(user)
     # make session cookie:
     r = web.Response()
