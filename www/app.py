@@ -152,7 +152,7 @@ def init(loop):
     yield from orm.create_pool(loop=loop, host='127.0.0.1', port=3306, user='root', password='1106', database='awesome',
                                charset='utf8')
     app = web.Application(loop=loop, middlewares=[
-        logger_factory, response_factory
+        logger_factory, auth_factory, response_factory
     ])
     init_jinja2(app, filters=dict(datetime=datetime_filter))
     add_routes(app, 'handlers')
