@@ -149,7 +149,8 @@ def datetime_filter(t):
 
 @asyncio.coroutine
 def init(loop):
-    yield from orm.create_pool(loop=loop, host='127.0.0.1', port=3306, user='root', password='1106', database='awesome')
+    yield from orm.create_pool(loop=loop, host='127.0.0.1', port=3306, user='root', password='1106', database='awesome',
+                               charset='utf8')
     app = web.Application(loop=loop, middlewares=[
         logger_factory, response_factory
     ])
@@ -161,6 +162,12 @@ def init(loop):
     return srv
 
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(init(loop))
-loop.run_forever()
+try:
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(init(loop))
+    loop.run_forever()
+except KeyboardInterrupt as e:
+    for task in asyncio.Task.all_tasks():
+        task.cancel()
+finally:
+    loop.close()
