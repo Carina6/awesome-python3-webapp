@@ -27,9 +27,6 @@ def create_pool(loop, **kw):
         loop=loop
     )
 
-    __pool.close()
-    yield from __pool.wait_closed()
-
 
 @asyncio.coroutine
 def select(sql, args, size=None):

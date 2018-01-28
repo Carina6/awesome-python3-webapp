@@ -7,7 +7,7 @@ async web application.
 
 import asyncio
 import json
-import logging
+import logging; logging.basicConfig(level=logging.INFO)
 import os
 import time
 from datetime import datetime
@@ -18,8 +18,6 @@ from jinja2 import Environment, FileSystemLoader
 import orm
 from coroweb import add_routes, add_static
 from handlers import COOKIE_NAME, cookie2user
-
-logging.basicConfig(level=logging.INFO)
 
 
 def init_jinja2(app, **kw):
@@ -96,6 +94,9 @@ def response_factory(app, handler):
     def response(request):
         logging.info('Response handler...')
         r = yield from handler(request)
+        # res_cookie = r.cookies
+        # if res_cookie is not None or res_cookie.get('awesession').value != '-deleted-':
+        #     r['__user__'] = request.__user__
         if isinstance(r, web.StreamResponse):
             return r
         if isinstance(r, bytes):
@@ -110,6 +111,7 @@ def response_factory(app, handler):
             return resp
         if isinstance(r, dict):
             template = r.get('__template__')
+            r['__user__'] = request.__user__
             if template is None:
                 resp = web.Response(
                     body=json.dumps(r, ensure_ascii=False, default=lambda o: o.__dict__).encode('utf-8'))
@@ -147,27 +149,30 @@ def datetime_filter(t):
     return u'%s年%s月%s日' % (dt.year, dt.month, dt.day)
 
 
-@asyncio.coroutine
-def init(loop):
-    yield from orm.create_pool(loop=loop, host='127.0.0.1', port=3306, user='root', password='1106', database='awesome',
-                               charset='utf8')
+async def init(loop):
+    await orm.create_pool(loop=loop, host='127.0.0.1', port=3306, user='root', password='1106', database='awesome')
     app = web.Application(loop=loop, middlewares=[
         logger_factory, auth_factory, response_factory
     ])
     init_jinja2(app, filters=dict(datetime=datetime_filter))
     add_routes(app, 'handlers')
     add_static(app)
-    srv = yield from loop.create_server(app.make_handler(), '127.0.0.1', 9000)
+    srv = await loop.create_server(app.make_handler(), '127.0.0.1', 9000)
     logging.info('server started at http://127.0.0.1:9000...')
     return srv
 
 
-try:
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(init(loop))
-    loop.run_forever()
-except KeyboardInterrupt as e:
-    for task in asyncio.Task.all_tasks():
-        task.cancel()
-finally:
-    loop.close()
+# try:
+#     loop = asyncio.get_event_loop()
+#     loop.run_until_complete(init(loop))
+#     loop.run_forever()
+# except KeyboardInterrupt as e:
+#     for task in asyncio.Task.all_tasks():
+#         task.cancel()
+# finally:
+#     loop.close()
+
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(init(loop))
+loop.run_forever()
