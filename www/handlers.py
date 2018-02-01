@@ -85,7 +85,8 @@ def index(request):
     #     Blog(id='3', name='Learn Swift', summary=summary, created_at=time.time() - 7200)
     # ]
 
-    blogs = yield from Blog.findAll('user_id=?', [request.__user__.id])
+    # blogs = yield from Blog.findAll('user_id=?', [request.__user__.id])
+    blogs = yield from Blog.findAll()
     return {
         '__template__': 'blogs.html',
         'blogs': blogs
