@@ -215,6 +215,13 @@ def api_get_blog(*, id):
     return blog
 
 
+@get('/api/blogs/delete/{id}')
+def api_delete_blog(*, id):
+    blog = yield from Blog.find(id)
+    blog.remove()
+    return
+
+
 @post('/api/blogs')
 def api_create_blog(request, *, id, name, summary, content):
     check_admin(request)
