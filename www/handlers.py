@@ -218,3 +218,13 @@ def api_create_blog(request, *, name, summary, content):
     yield from blog.save(blog)
 
     return blog
+
+
+@get('/blog/{id}')
+def get_blog_detail(*, id):
+    blog = yield from Blog.find(id)
+
+    return {
+        '__template__': 'blog.html',
+        'blog': blog
+    }
