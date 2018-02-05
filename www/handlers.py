@@ -159,6 +159,16 @@ def manage_create_blog():
     }
 
 
+@get('/manage/blogs/edit')
+def manage_edit_blog(*, id):
+    blog = yield from Blog.find(id)
+    return {
+        '__template__': 'manage_blog_edit.html',
+        'id': id,
+        'action': '/api/blogs'
+    }
+
+
 _RE_EMAIL = re.compile(r'^[a-z0-9\.\-\_]+\@[a-z0-9\-\_]+(\.[a-z0-9\-\_]+){1,4}$')
 _RE_SHA1 = re.compile(r'^[0-9a-f]{40}$')
 
@@ -206,7 +216,7 @@ def api_get_blog(*, id):
 
 
 @post('/api/blogs')
-def api_create_blog(request, *, name, summary, content):
+def api_create_blog(request, *, id, name, summary, content):
     check_admin(request)
     if not name or not name.strip():
         raise APIValueError('name', 'name cannot be empty.')
@@ -214,8 +224,15 @@ def api_create_blog(request, *, name, summary, content):
         raise APIValueError('summary', 'summary cannot be empty.')
     if not content or not content.strip():
         raise APIValueError('content', 'content cannot be empty.')
-    blog = Blog(user_id=request.__user__.id, user_name=request.__user__.name, user_image=request.__user__.image, name=name.strip(), summary=summary.strip(), content=content.strip())
-    yield from blog.save(blog)
+    if(id is not None):
+        blog = yield from Blog.find(id)
+        blog.name = name.strip()
+        blog.summary = summary.strip()
+        blog.content = content.strip()
+        yield from blog.update(blog)
+    else:
+        blog = Blog(user_id=request.__user__.id, user_name=request.__user__.name, user_image=request.__user__.image, name=name.strip(), summary=summary.strip(), content=content.strip())
+        yield from blog.save(blog)
 
     return blog
 
