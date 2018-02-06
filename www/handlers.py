@@ -12,10 +12,11 @@ import time
 
 from aiohttp import web
 
+import markdown2
 from apis import Page, APIValueError, APIError, APIPermissionError
 from config import configs
 from coroweb import get, post
-from models import User, Blog, next_id
+from models import User, Blog, next_id, Comment
 
 COOKIE_NAME = 'awesession'
 _COOKIE_KEY = configs.session.secret
@@ -161,7 +162,7 @@ def manage_create_blog():
 
 @get('/manage/blogs/edit')
 def manage_edit_blog(*, id):
-    blog = yield from Blog.find(id)
+    # blog = yield from Blog.find(id)
     return {
         '__template__': 'manage_blog_edit.html',
         'id': id,
@@ -231,7 +232,7 @@ def api_create_blog(request, *, id, name, summary, content):
         raise APIValueError('summary', 'summary cannot be empty.')
     if not content or not content.strip():
         raise APIValueError('content', 'content cannot be empty.')
-    if(id is not None):
+    if not id:
         blog = yield from Blog.find(id)
         blog.name = name.strip()
         blog.summary = summary.strip()
@@ -247,8 +248,23 @@ def api_create_blog(request, *, id, name, summary, content):
 @get('/blog/{id}')
 def get_blog_detail(*, id):
     blog = yield from Blog.find(id)
-
-    return {
+    comments = yield from Comment.findAll('blog_id=?', [id], orderBy='created_at desc')
+    response = {
         '__template__': 'blog.html',
         'blog': blog
     }
+    if comments is not None:
+        response['comments'] = comments
+
+    return response
+
+
+@post('/api/blogs/comments/add/{id}')
+def api_add_comments(request, *, content, id):
+    check_admin(request)
+    if not content or not content.strip():
+        raise APIValueError('content', 'content cannot be empty.')
+    comment = Comment(user_id=request.__user__.id, user_name=request.__user__.name, user_image=request.__user__.image,
+                blog_id=id, content=content.strip())
+    yield from Comment.save(comment)
+    return comment

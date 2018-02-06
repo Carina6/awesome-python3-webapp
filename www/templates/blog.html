@@ -6,7 +6,7 @@
 
 <script>
 
-var comment_url = '/api/blogs/{{ blog.id }}/comments';
+var comment_url = '/api/blogs/comments/add/{{ blog.id }}';
 
 $(function () {
     var $form = $('#form-comment');
@@ -72,7 +72,8 @@ $(function () {
                         <p class="uk-comment-meta">{{ comment.created_at|datetime }}</p>
                     </header>
                     <div class="uk-comment-body">
-                        {{ comment.html_content|safe }}
+                        {{ comment.content }}
+                        <!--{{ comment.html_content|safe }}-->
                     </div>
                 </article>
             </li>
