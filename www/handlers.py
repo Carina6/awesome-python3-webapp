@@ -215,11 +215,11 @@ def api_get_blog(*, id):
     return blog
 
 
-@get('/api/blogs/delete/{id}')
+@post('/api/blogs/delete/{id}')
 def api_delete_blog(*, id):
     blog = yield from Blog.find(id)
-    blog.remove()
-    return
+    yield from Blog.remove(blog)
+    return dict(id=id)
 
 
 @post('/api/blogs')

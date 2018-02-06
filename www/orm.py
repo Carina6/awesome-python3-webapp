@@ -233,7 +233,7 @@ class Model(dict, metaclass=ModelMetaclass):
 
     @classmethod
     @asyncio.coroutine
-    def remove(self):
+    def remove(cls, self):
         args = [self.getValue(self.__primary_key__)]
         rows = yield from execute(self.__delete__, args)
         if rows != 1:
