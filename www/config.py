@@ -4,7 +4,7 @@
 '''
 Configuration
 '''
-
+import logging
 
 import config_default
 
@@ -57,3 +57,17 @@ except ImportError:
     pass
 
 configs = toDict(configs)
+
+
+def logger_config():
+    logging.basicConfig(level=logging.INFO)
+
+    # config stream log
+    console = logging.StreamHandler()
+    console.setFormatter(fmt=logging.Formatter('%(asctime)s %(funcName)s[line:%(lineno)d] %(levelname)s: %(message)s'))
+    logging.getLogger('').addHandler(console)
+
+    # config file log
+    file = logging.FileHandler(filename='D:/gitlab/awesome-python3-webapp/awesome.log', mode='w', encoding='utf-8')
+    file.setFormatter(fmt=logging.Formatter('%(asctime)s %(funcName)s[line:%(lineno)d] %(levelname)s: %(message)s'))
+    logging.getLogger('').addHandler(file)

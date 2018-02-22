@@ -6,10 +6,10 @@
 import asyncio
 import hashlib
 import json
-import logging
 import re
 import time
 
+import logging
 from aiohttp import web
 
 import markdown2
@@ -17,6 +17,8 @@ from apis import Page, APIValueError, APIError, APIPermissionError
 from config import configs
 from coroweb import get, post
 from models import User, Blog, next_id, Comment
+
+Logger = logging.getLogger(__name__)
 
 COOKIE_NAME = 'awesession'
 _COOKIE_KEY = configs.session.secret
@@ -68,12 +70,12 @@ def cookie2user(cookie_str):
             return None
         s = '%s-%s-%s-%s' % (uid, user.passwd, expires, _COOKIE_KEY)
         if sha1 != hashlib.sha1(s.encode('utf-8')).hexdigest():
-            logging.info('invalid sha1')
+            Logger.info('invalid sha1')
             return None
         user.passwd = '******'
         return user
     except Exception as e:
-        logging.exception(e)
+        Logger.exception(e)
         return None
 
 
@@ -139,7 +141,7 @@ def signout(request):
     referer = request.headers.get('Referer')
     r = web.HTTPFound(referer or '/')
     r.set_cookie(COOKIE_NAME, '-deleted-', max_age=0, httponly=True)
-    logging.info('user signed out.')
+    Logger.info('user signed out.')
     return r
 
 

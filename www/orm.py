@@ -6,13 +6,16 @@ import aiomysql
 import asyncio
 
 
+Logger = logging.getLogger(__name__)
+
+
 def log(sql, args=()):
-    logging.info('SQL: %s' % sql)
+    Logger.info('SQL: %s' % sql)
 
 
 @asyncio.coroutine
 def create_pool(loop, **kw):
-    logging.info('create database connection pool...')
+    Logger.info('create database connection pool...')
     global __pool
     __pool = yield from aiomysql.create_pool(
         host=kw.get('host', 'localhost'),
@@ -40,7 +43,7 @@ def select(sql, args, size=None):
         else:
             rs = yield from cur.fetchall()
         yield from cur.close()
-        logging.info('rows returned: %s' % len(rs))
+        Logger.info('rows returned: %s' % len(rs))
         return rs
 
 
@@ -106,13 +109,14 @@ class ModelMetaclass(type):
         if name =='Model':
             return type.__new__(cls, name, bases, attrs)
         tableName = attrs.get('__table__', None) or name
-        logging.info('found model: %s (table: %s)' % (name, tableName))
+        Logger.info('==========')
+        Logger.info('found model: {} (table: {})'.format(name, tableName))
         mappings = dict()
         fields = []
         primaryKey = None
         for k, v in attrs.items():
             if isinstance(v, Field):
-                logging.info('found mapping: %s ==> %s' % (k, v))
+                Logger.info('found mapping: %s ==> %s' % (k, v))
                 mappings[k] = v
                 if v.primary_key:
                     #找到主键
@@ -159,7 +163,7 @@ class Model(dict, metaclass=ModelMetaclass):
             field = self.__mappings__[key]
             if field.default is not None:
                 value = field.default() if callable(field.default) else field.default
-                logging.debug('using default value for %s: %s' % (key, str(value)))
+                Logger.debug('using default value for %s: %s' % (key, str(value)))
                 setattr(self, key, value)
         return value
 
@@ -220,7 +224,7 @@ class Model(dict, metaclass=ModelMetaclass):
         args.append(self.getValueOrDefault(self.__primary_key__))
         rows = yield from execute(self.__insert__, args)
         if rows != 1:
-            logging.warn('failed to insert record: affected rows: %s' % rows)
+            Logger.warning('failed to insert record: affected rows: %s' % rows)
 
     @classmethod
     @asyncio.coroutine
@@ -229,7 +233,7 @@ class Model(dict, metaclass=ModelMetaclass):
         args.append(self.getValue(self.__primary_key__))
         rows = yield from execute(self.__update__, args)
         if rows != 1:
-            logging.warn('failed to update by primary key: affected rows: %s' % rows)
+            Logger.warning('failed to update by primary key: affected rows: %s' % rows)
 
     @classmethod
     @asyncio.coroutine
@@ -237,4 +241,4 @@ class Model(dict, metaclass=ModelMetaclass):
         args = [self.getValue(self.__primary_key__)]
         rows = yield from execute(self.__delete__, args)
         if rows != 1:
-            logging.warn('failed to remove by primary key: affected rows: %s' % rows)
+            Logger.warning('failed to remove by primary key: affected rows: %s' % rows)
