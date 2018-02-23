@@ -62,7 +62,7 @@ configs = toDict(configs)
 
 
 def logger_config():
-    # logging.basicConfig(level=logging.INFO)  设置此配置，会在控制台打印重复log
+    # logging.basicConfig(level=logging.INFO)  配置此项，会在控制台打印重复log
     Logger = logging.getLogger('')
     Logger.setLevel(logging.INFO)
 
