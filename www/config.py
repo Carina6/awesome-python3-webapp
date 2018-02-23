@@ -5,8 +5,10 @@
 Configuration
 '''
 import logging
+import os
 
 import config_default
+from rootdir import root_dir
 
 
 class Dict(dict):
@@ -60,14 +62,19 @@ configs = toDict(configs)
 
 
 def logger_config():
-    logging.basicConfig(level=logging.INFO)
+    # logging.basicConfig(level=logging.INFO)  设置此配置，会在控制台打印重复log
+    Logger = logging.getLogger('')
+    Logger.setLevel(logging.INFO)
+
+    LOG_FORMAT = '%(asctime)s %(funcName)s[line:%(lineno)d] %(levelname)s: %(message)s'
 
     # config stream log
     console = logging.StreamHandler()
-    console.setFormatter(fmt=logging.Formatter('%(asctime)s %(funcName)s[line:%(lineno)d] %(levelname)s: %(message)s'))
-    logging.getLogger('').addHandler(console)
+    console.setFormatter(fmt=logging.Formatter(LOG_FORMAT))
+    Logger.addHandler(console)
 
     # config file log
-    file = logging.FileHandler(filename='D:/gitlab/awesome-python3-webapp/awesome.log', mode='w', encoding='utf-8')
-    file.setFormatter(fmt=logging.Formatter('%(asctime)s %(funcName)s[line:%(lineno)d] %(levelname)s: %(message)s'))
-    logging.getLogger('').addHandler(file)
+
+    file = logging.FileHandler(filename=os.path.join(root_dir, 'awesome.log'), mode='w', encoding='utf-8')
+    file.setFormatter(fmt=logging.Formatter(LOG_FORMAT))
+    Logger.addHandler(file)
